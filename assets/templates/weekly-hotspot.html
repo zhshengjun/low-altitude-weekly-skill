@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<!-- ==================================================================
+     WEEKLY HOTSPOT ANALYSIS TEMPLATE · Kami design system
+     本周热点分析 · 研究简报排版
+     结构：封面 → 本周要点 → 目录 → 分析专栏 → 优选信息
+     ================================================================== -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{文档标题}} · 本周热点分析</title>
+<meta name="author" content="{{作者}}">
+<meta name="description" content="{{摘要}}">
+<meta name="keywords" content="{{关键词}}">
+<meta name="generator" content="Kami">
+<style>
+  /* ====== FONTS ====== */
+  @font-face {
+    font-family: "TsangerJinKai02";
+    src: url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W04.ttf") format("truetype");
+    font-weight: 400; font-style: normal;
+  }
+  @font-face {
+    font-family: "TsangerJinKai02";
+    src: url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W05.ttf") format("truetype");
+    font-weight: 500; font-style: normal;
+  }
+
+  /* ====== PAGE ====== */
+  @page {
+    size: A4;
+    margin: 20mm 22mm 22mm 22mm;
+    background: #f5f4ed;
+    @top-right {
+      content: string(section-title);
+      font-family: "TsangerJinKai02", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", Georgia, serif;
+      font-size: 8pt; color: #6b6a64;
+    }
+    @bottom-center {
+      content: counter(page);
+      font-family: "TsangerJinKai02", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", Georgia, serif;
+      font-size: 9pt; color: #6b6a64;
+    }
+  }
+  @page:first {
+    @top-right { content: ""; }
+    @bottom-center { content: ""; }
+  }
+  @page.cover-page {
+    @top-right { content: ""; }
+    @bottom-center { content: ""; }
+  }
+
+  /* ====== RESET ====== */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ====== DESIGN TOKENS ====== */
+  :root {
+    --parchment: #f5f4ed;
+    --ivory:     #faf9f5;
+    --near-black:#141413;
+    --dark-warm: #3d3d3a;
+    --olive:     #504e49;
+    --stone:     #6b6a64;
+    --brand:     #1B365D;
+    --border:    #e8e6dc;
+    --border-soft:#e5e3d8;
+    --tag-bg:    #E4ECF5;
+    --serif: "TsangerJinKai02", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", Georgia, serif;
+    --sans: var(--serif);
+  }
+
+  html, body { background: var(--parchment); }
+
+  @media screen {
+    body { max-width: 210mm; margin: 0 auto; padding: 20mm 22mm 22mm 22mm; }
+  }
+
+  body {
+    color: var(--near-black);
+    font-family: var(--serif);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    letter-spacing: 0.3pt;
+    widows: 3; orphans: 3;
+  }
+
+  /* ====== COVER ====== */
+  .cover {
+    min-height: 240mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40mm 0 0 0;
+    break-after: page;
+    page: cover-page;
+  }
+  .cover-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8pt;
+    font-size: 10pt;
+    color: var(--brand);
+    letter-spacing: 1.5pt;
+    font-weight: 500;
+    margin-bottom: 18pt;
+  }
+  .cover-eyebrow::before {
+    content: "";
+    width: 9pt; height: 1.5pt;
+    border-radius: 0.75pt;
+    background: var(--brand);
+    flex-shrink: 0;
+  }
+  .cover-title {
+    font-size: 36pt;
+    font-weight: 500;
+    color: var(--near-black);
+    line-height: 1.15;
+    letter-spacing: 0.3pt;
+    margin-bottom: 16pt;
+  }
+  .cover-sub {
+    font-size: 14pt;
+    color: var(--olive);
+    line-height: 1.5;
+    max-width: 85%;
+    margin-bottom: 30pt;
+  }
+  .cover-meta {
+    font-size: 10pt;
+    color: var(--stone);
+    line-height: 1.5;
+  }
+  .cover-meta strong { color: var(--dark-warm); font-weight: 500; }
+
+  /* ====== HIGHLIGHTS (本周要点) ====== */
+  .highlights {
+    break-after: page;
+    padding-top: 8mm;
+  }
+  .highlights h1 {
+    font-size: 22pt;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 0 18pt 0;
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+    color: var(--near-black);
+  }
+  .highlights-list {
+    list-style: none;
+    counter-reset: hl-counter;
+    padding: 0;
+  }
+  .highlights-list li {
+    counter-increment: hl-counter;
+    position: relative;
+    padding: 14pt 0 14pt 36pt;
+    border-bottom: 0.3pt dotted var(--border);
+    font-size: 12pt;
+    line-height: 1.55;
+    color: var(--dark-warm);
+  }
+  .highlights-list li:last-child { border-bottom: none; }
+  .highlights-list li::before {
+    content: counter(hl-counter);
+    position: absolute;
+    left: 0; top: 14pt;
+    width: 22pt; height: 22pt;
+    background: var(--brand);
+    color: var(--ivory);
+    font-size: 10pt;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2pt;
+  }
+  .hl-accent { color: var(--brand); font-weight: 500; }
+
+  /* ====== TOC (目录) ====== */
+  .toc { break-after: page; padding-top: 8mm; }
+  .toc h1 {
+    font-size: 22pt;
+    font-weight: 500;
+    margin-bottom: 18pt;
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+  }
+  .toc-section-label {
+    font-size: 10pt;
+    color: var(--brand);
+    font-weight: 500;
+    letter-spacing: 1pt;
+    margin: 14pt 0 6pt 0;
+    padding-left: 8pt;
+  }
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6pt 0 6pt 8pt;
+    border-bottom: 0.3pt dotted var(--border);
+    font-size: 11pt;
+  }
+  .toc-item:last-of-type { border-bottom: none; }
+  .toc-num {
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 28pt;
+  }
+  .toc-title {
+    flex: 1;
+    color: var(--near-black);
+    padding-left: 4pt;
+  }
+  .toc-page {
+    color: var(--stone);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ====== HEADINGS ====== */
+  h1 {
+    font-size: 22pt;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 0 10pt 0;
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+    color: var(--near-black);
+    break-after: avoid;
+    string-set: section-title content();
+  }
+  h2 {
+    font-size: 16pt;
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 24pt 0 8pt 0;
+    color: var(--near-black);
+    break-after: avoid;
+  }
+  h3 {
+    font-size: 13pt;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 18pt 0 6pt 0;
+    color: var(--dark-warm);
+    break-after: avoid;
+  }
+  .chapter-num {
+    font-size: 10pt;
+    color: var(--brand);
+    letter-spacing: 1pt;
+    margin-bottom: 6pt;
+  }
+
+  /* ====== PARAGRAPHS ====== */
+  p {
+    margin: 0 0 10pt 0;
+    line-height: 1.55;
+    color: var(--near-black);
+    widows: 2; orphans: 2;
+  }
+  .lead {
+    font-size: 12pt;
+    line-height: 1.55;
+    color: var(--dark-warm);
+    margin-bottom: 14pt;
+  }
+  strong { font-weight: 500; }
+
+  /* ====== SOURCE METADATA ====== */
+  .source-meta {
+    background: var(--ivory);
+    border-left: 2pt solid var(--brand);
+    border-radius: 3pt;
+    padding: 8pt 14pt;
+    margin: 10pt 0 6pt 0;
+    font-size: 9pt;
+    line-height: 1.6;
+    color: var(--stone);
+    break-inside: avoid;
+  }
+  .source-meta .sm-label {
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 56pt;
+    display: inline-block;
+  }
+  .source-meta a {
+    color: var(--dark-warm);
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  /* ====== SUMMARY CALLOUT ====== */
+  .summary-callout {
+    background: var(--ivory);
+    border-radius: 4pt;
+    padding: 10pt 14pt;
+    margin: 8pt 0 14pt 0;
+    break-inside: avoid;
+  }
+  .summary-callout .sc-label {
+    font-size: 9pt;
+    color: var(--brand);
+    letter-spacing: 0.5pt;
+    font-weight: 500;
+    margin-bottom: 4pt;
+  }
+  .summary-callout p {
+    font-size: 10pt;
+    color: var(--olive);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ====== ARTICLE BLOCK ====== */
+  .article {
+    margin-bottom: 28pt;
+  }
+  .article:last-child { margin-bottom: 0; }
+
+  /* ====== CHAPTER BREAK ====== */
+  .chapter { break-before: page; padding-top: 8mm; }
+
+  /* ====== DIVIDER ====== */
+  .section-rule {
+    border: none;
+    border-top: 0.5pt solid var(--border);
+    margin: 24pt 0;
+  }
+
+  /* ====== TABLE (data display) ====== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin: 12pt 0;
+    break-inside: avoid;
+  }
+  table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--dark-warm);
+    padding: 6pt 8pt;
+    border-bottom: 1pt solid var(--border);
+    background: transparent;
+  }
+  table td {
+    padding: 5pt 8pt;
+    border-bottom: 0.3pt solid var(--border-soft);
+    vertical-align: top;
+  }
+
+  /* ====== CALLOUT ====== */
+  .callout {
+    background: var(--ivory);
+    border-left: 2pt solid var(--brand);
+    padding: 10pt 14pt;
+    border-radius: 3pt;
+    margin: 12pt 0;
+    line-height: 1.55;
+    break-inside: avoid;
+  }
+
+  /* ====== COLOPHON ====== */
+  .colophon {
+    margin-top: 40pt;
+    padding-top: 14pt;
+    border-top: 0.5pt solid var(--border);
+    font-size: 9pt;
+    color: var(--stone);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<section class="cover">
+  <div>
+    <div class="cover-eyebrow">{{领域标签 · 如 "现代物流" / "新能源"}}</div>
+    <div class="cover-title">{{领域}}<br>本周热点分析</div>
+    <div class="cover-sub">基于近一周公开信息的领域动态追踪，覆盖政策、运行、项目、企业与技术等维度，所有判断均来源于已核验原始资讯。</div>
+  </div>
+  <div class="cover-meta">
+    <strong>统计周期</strong><br>
+    {{开始日期}} 至 {{结束日期}}<br>
+    共收录 <strong>{{入选资讯数}}</strong> 条核验资讯 · <strong>{{分类数}}</strong> 大主题板块
+  </div>
+</section>
+
+<!-- ═══════════════ 本周要点 ═══════════════ -->
+<section class="highlights">
+  <h1>本周要点</h1>
+  <ol class="highlights-list">
+    <!-- HIGHLIGHT_LOOP_START -->
+    <li><span class="hl-accent">{{要点关键词}}</span>{{要点正文}}</li>
+    <!-- HIGHLIGHT_LOOP_END -->
+  </ol>
+</section>
+
+<!-- ═══════════════ 目录 ═══════════════ -->
+<section class="toc">
+  <h1>目录</h1>
+
+  <div class="toc-section-label">〖分析专栏〗</div>
+  <!-- TOC_ANALYSIS_LOOP_START -->
+  <div class="toc-item">
+    <span class="toc-num">{{序号}}</span>
+    <span class="toc-title">{{分析专栏编辑主题标题}}</span>
+    <span class="toc-page">00</span>
+  </div>
+  <!-- TOC_ANALYSIS_LOOP_END -->
+
+  <div class="toc-section-label">〖优选信息〗</div>
+  <!-- TOC_SELECTED_LOOP_START -->
+  <div class="toc-item">
+    <span class="toc-num">{{序号}}</span>
+    <span class="toc-title">{{优选信息编辑主题标题}}</span>
+    <span class="toc-page">00</span>
+  </div>
+  <!-- TOC_SELECTED_LOOP_END -->
+</section>
+
+<!-- ═══════════════ 分析专栏 ═══════════════ -->
+<section class="chapter">
+  <div class="chapter-num">{{章节编号}} · 分析专栏</div>
+  <h1>分析专栏</h1>
+
+  <!-- ANALYSIS_ARTICLE_LOOP_START -->
+  <div class="article">
+    <h2>{{编辑主题标题}}</h2>
+
+    <div class="source-meta">
+      <div><span class="sm-label">来源：</span>{{来源名称}}</div>
+      <div><span class="sm-label">发布时间：</span>{{发布时间}}</div>
+      <div><span class="sm-label">来源链接：</span><a href="{{来源链接}}">{{来源链接}}</a></div>
+    </div>
+
+    <div class="summary-callout">
+      <div class="sc-label">摘要</div>
+      <p>{{AI 摘要 · 2-4 句话概括事实变化、重要性及影响}}</p>
+    </div>
+
+    <!-- 正文段落 · 3-5 段 · 单篇 ≥500 字 -->
+    <p>{{正文段落 1}}</p>
+    <p>{{正文段落 2}}</p>
+    <p>{{正文段落 3}}</p>
+  </div>
+  <!-- ANALYSIS_ARTICLE_LOOP_END -->
+</section>
+
+<!-- ═══════════════ 优选信息 ═══════════════ -->
+<section class="chapter">
+  <div class="chapter-num">{{章节编号}} · 优选信息</div>
+  <h1>优选信息</h1>
+
+  <!-- SELECTED_ITEM_LOOP_START -->
+  <div class="article">
+    <h2>{{标签：编辑主题标题}}</h2>
+
+    <div class="source-meta">
+      <div><span class="sm-label">来源：</span>{{来源名称}}</div>
+      <div><span class="sm-label">发布时间：</span>{{发布时间}}</div>
+      <div><span class="sm-label">来源链接：</span><a href="{{来源链接}}">{{来源链接}}</a></div>
+    </div>
+
+    <div class="summary-callout">
+      <div class="sc-label">摘要</div>
+      <p>{{AI 摘要 · 2-4 句话概括事实变化、重要性及影响}}</p>
+    </div>
+
+    <!-- 正文段落 · 2-4 段 · 单篇 ≥250 字 -->
+    <p>{{正文段落 1}}</p>
+    <p>{{正文段落 2}}</p>
+  </div>
+  <!-- SELECTED_ITEM_LOOP_END -->
+</section>
+
+<!-- ═══════════════ COLOPHON ═══════════════ -->
+<section class="colophon">
+  <p>《{{领域}}本周热点分析》由 AI 辅助生成，所有资讯均来源于公开可追溯的原始页面，发布时间和来源链接已逐条核验。分析判断基于已入选资讯，不代表任何机构立场。统计周期：{{开始日期}} 至 {{结束日期}}。</p>
+</section>
+
+</body>
+</html>

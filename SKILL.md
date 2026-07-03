@@ -22,10 +22,14 @@ description: Collect important news from the past week for a user-specified doma
 5. 读取 `references/summary-prompts.md`，为每条资讯写 AI 摘要和连续正文，并按其中“最终报告组装”模板生成正文。摘要用于快速交代事实与重要性；正文首先服务于“一周要讯”阅读，重点总结资讯内容本身，包括发生了什么、涉及哪些主体、有哪些数据或政策要求、项目进展到哪一步；只有在事实交代清楚后，才补充必要的影响和后续关注。
 6. 按 `references/checklist.md` 做 P0/P1 检查；P0 未通过不得交付。发现缺少固定栏目、统计周期、本周要点、已核验来源、已核验来源链接、已核验发布时间、逐条 AI 摘要或正文不合格时，只修正问题部分再交付。
 7. 默认直接在最终回复中交付正文，不附加候选统计、搜索入口统计、剔除池或文末来源明细表。正文每条入选信息必须展示来源名称、发布时间、来源链接和摘要。
+8. 正文交付完成后，读取 `assets/templates/weekly-hotspot.html`，将已生成的报告内容填入模板，生成 Kami 风格 HTML 文件，并转换为 PDF。详见下方「Kami 渲染」章节。
 
 ## 交付方式
 
-直接返回中文《本周热点分析》正文；不生成文件。
+分两步交付：
+
+1. **第一步 — Markdown 正文**：直接在对话中返回中文《本周热点分析》完整正文。
+2. **第二步 — Kami 渲染**：将正文内容填入 `assets/templates/weekly-hotspot.html` 模板，生成 HTML 文件，再调用 Kami 构建系统输出 PDF。用户未要求时自动执行；用户明确说"不用渲染"时跳过。
 
 ## 执行闭环
 
@@ -82,7 +86,69 @@ description: Collect important news from the past week for a user-specified doma
 正文连续段落，避免写成“AI分析：……”字段，不写“最终分析结论”。
 ```
 
-用户未指定地域时，统计周期只写日期，不追加“中国大陆”“国内”等默认地域说明。
+用户未指定地域时，统计周期只写日期，不追加”中国大陆””国内”等默认地域说明。
+
+## Kami 渲染
+
+Markdown 正文交付后，将报告内容填入 `assets/templates/weekly-hotspot.html` 生成排版文档，默认输出 HTML 和 PDF 两种格式。
+
+### 模板结构映射
+
+`weekly-hotspot.html` 使用 Kami 设计系统（暖羊皮纸底色 `#f5f4ed`、墨蓝强调色 `#1B365D`、苍南金楷 + Charter 衬线字体），结构映射如下：
+
+| 报告层级 | HTML 容器 | 关键元素 |
+|---------|----------|---------|
+| 封面 | `.cover` | `.cover-eyebrow` 领域标签、`.cover-title` 标题、`.cover-sub` 副标题、`.cover-meta` 统计周期 |
+| 本周要点 | `.highlights` | `h1` 标题、`ol.highlights-list > li` 编号条目，关键词用 `.hl-accent` |
+| 目录 | `.toc` | `.toc-section-label` 分组标签、`.toc-item` 条目行 |
+| 分析专栏 | `section.chapter` | `.chapter-num` 章节编号、`h1` 标题、每篇分析为 `.article` |
+| 优选信息 | `section.chapter` | 同上，条目标题含业务板块标签 |
+| 每条资讯元数据 | `.source-meta` | 象牙白底色、品牌色左边线，内放 `来源：` / `发布时间：` / `来源链接：` |
+| 每条资讯摘要 | `.summary-callout` | 象牙白卡片，`.sc-label` 标”摘要”，正文用橄榄色 `#504e49` |
+| 尾注 | `.colophon` | 报告声明和统计周期 |
+
+### 填入规则
+
+1. 复制模板到工作目录，不改 CSS，只替换 `{{占位符}}` 和注释区间内的内容。
+2. **封面**：替换 `{{领域标签}}`、`{{领域}}`、`{{开始日期}}`、`{{结束日期}}`、`{{入选资讯数}}`、`{{分类数}}`。
+3. **本周要点**：在 `<!-- HIGHLIGHT_LOOP_START -->` 到 `<!-- HIGHLIGHT_LOOP_END -->` 之间，按要点数量复制 `<li>` 块，每条填入 `{{要点关键词}}`（用 `.hl-accent` 包裹的关键短语）和 `{{要点正文}}`。
+4. **目录**：在 `<!-- TOC_ANALYSIS_LOOP_START/END -->` 之间为每篇分析专栏复制 `.toc-item`；在 `<!-- TOC_SELECTED_LOOP_START/END -->` 之间为每条优选信息复制 `.toc-item`。`{{序号}}` 从 1 起编，页号先用 `00` 占位（PDF 构建后手动更新或保持占位）。
+5. **分析专栏**：替换 `{{章节编号}}`，在 `<!-- ANALYSIS_ARTICLE_LOOP_START/END -->` 之间为每篇复制 `.article` 块。每个 `.article` 含 `h2` 标题、`.source-meta` 元数据、`.summary-callout` 摘要和正文 `<p>` 段落。正文段落数 3-5 段（≥500 字）。
+6. **优选信息**：同上，在 `<!-- SELECTED_ITEM_LOOP_START/END -->` 之间复制 `.article` 块。正文段落数 2-4 段（≥250 字）。`h2` 标题保留业务板块标签格式，如 `政策动向：十部门发布都市圈综合交通运输体系指导意见`。
+7. **尾注**：替换 `{{领域}}`、`{{开始日期}}`、`{{结束日期}}`。
+8. 填入完成后运行 `--check-placeholders` 确保无残留占位符。
+
+### 构建与输出
+
+模板 CSS 通过 jsDelivr CDN 加载苍南金楷字体，HTML 文件在浏览器中即可正常预览。PDF 构建使用 skill 内置的 `scripts/build.py`：
+
+```bash
+# 仅检查残留占位符（无需任何依赖）
+python3 scripts/build.py --check-placeholders path/to/report.html
+
+# 完整验证：占位符 + 结构 + 构建 PDF + 页数检查
+python3 scripts/build.py --verify path/to/report.html
+
+# 指定输出路径
+python3 scripts/build.py path/to/report.html --output path/to/out.pdf
+```
+
+**依赖**：PDF 生成需要 `weasyprint`（`pip install weasyprint`）。WeasyPrint 不可用时，`build.py` 自动跳过 PDF 步骤，仅完成占位符和结构检查。
+
+**无需 Python 时的备选路径**：直接在 Chrome 中打开 HTML → 打印 → 另存为 PDF → 边距选”无”、勾选”背景图形”。此方式同样可产出高质量 PDF，仅字体子集化程度不如 WeasyPrint。
+
+### 视觉验收
+
+构建后检查以下项，不通过则修正模板填入：
+
+- 封面标题完整、无裁切，统计周期可见
+- 本周要点条目数与正文一致
+- 目录条目与正文 `h2` 标题逐项对应
+- `.source-meta` 每条的来源、发布时间、来源链接三行完整
+- `.summary-callout` 每条的摘要块存在且非空
+- 分析专栏每篇正文 ≥500 字，优选信息每篇 ≥250 字
+- 无 `{{...}}` 残留占位符
+- 页面无异常空白页或单行孤行
 
 ## 资讯字段
 
@@ -140,3 +206,6 @@ description: Collect important news from the past week for a user-specified doma
 - `references/crawling-guide.md`：信息抓取、信源优先级、去重和发布时间判定。
 - `references/summary-prompts.md`：单条评论式分析、目录、栏目分析和自检的提示词。
 - `references/checklist.md`：交付前 P0/P1/P2 质量门禁。
+- `references/domain-presets.yaml`：领域预设、别名、信源和种子查询。
+- `assets/templates/weekly-hotspot.html`：Kami 设计系统排版模板，用于将 Markdown 报告渲染为 HTML/PDF。
+- `scripts/build.py`：内置构建脚本，支持占位符检查、结构验证和 PDF 生成（需 WeasyPrint）。
