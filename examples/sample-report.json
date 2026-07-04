@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "低空经济本周热点分析",
+    "domain": "低空经济",
+    "label": "低空经济",
+    "start_date": "2026-06-26",
+    "end_date": "2026-07-03",
+    "item_count": 6,
+    "category_count": 4,
+    "author": "weekly-hotspot-analysis",
+    "description": "基于公开资料和用户上传数据生成的 HTML 周报样例",
+    "keywords": "低空经济, 周报, 招标, 热力图"
+  },
+  "highlights": [
+    {
+      "keyword": "政策配套",
+      "body": "多地围绕空域管理、飞行服务和基础设施发布本周增量，低空经济制度供给继续细化。"
+    },
+    {
+      "keyword": "场景落地",
+      "body": "政务巡检、物流配送和文旅体验仍是本周最活跃的应用方向。"
+    },
+    {
+      "keyword": "招标分布",
+      "body": "本周招标项目集中在浙江、广东、江苏等地，浙江省内以杭州和宁波更活跃。"
+    }
+  ],
+  "analysis": [
+    {
+      "title": "低空飞行服务从试点应用转向常态化基础设施",
+      "source_name": "示例来源",
+      "source_url": "https://example.com/low-altitude-policy",
+      "published_at": "2026-07-02",
+      "summary": "本周多地围绕低空飞行服务、空域管理和基础设施配套发布增量信息，显示低空经济正在从项目展示转向运行规则和服务入口建设。",
+      "paragraphs": [
+        "本周低空经济的主要变化，不是单个飞行器或单个项目的亮相，而是飞行服务、空域管理、基础设施和应用场景开始被放进同一个运行体系中推进。各地围绕适飞空域查询、气象服务、飞行审批、公共航路和起降设施的安排，说明低空经济正在从“能不能飞”的验证阶段，进入“如何持续合规运行”的基础设施阶段。",
+        "这一变化会影响后续项目的真实落地质量。低空经济过去容易停留在展会、演示和单点试飞，真正进入城市治理、物流配送、文旅观光和应急救援时，需要稳定的空域规则、审批流程、通信保障、气象服务和地面配套。飞行服务平台和低空智联网的建设，本质上是在降低运营主体的合规成本和调度成本，让更多场景具备可复制条件。",
+        "后续观察重点应放在两类变量：一是地方平台能否从信息查询工具升级为实际调度入口，二是公共航路、起降点和气象保障能否与具体项目采购、运营主体和商业收入衔接。如果只有平台上线而缺少常态化飞行数据和项目订单，低空基础设施仍可能停留在示范层面。"
+      ]
+    }
+  ],
+  "selected": [
+    {
+      "title": "政策动态：浙江上线低空飞行服务模块",
+      "source_name": "示例来源",
+      "source_url": "https://example.com/zhejiang-module",
+      "published_at": "2026-07-01",
+      "summary": "浙江上线低空飞行服务模块。",
+      "paragraphs": [
+        "浙江上线低空飞行服务模块，提供适飞空域、气象服务和合规飞行指引，地方低空服务入口进一步前移到移动端。这类入口把分散的审批、空域和气象信息整合到同一服务链条，便于运营主体快速判断能否飞、怎么飞。"
+      ],
+      "scores": {
+        "tier1_source_authority": 5,
+        "tier1_info_density": 4,
+        "tier1_domain_relevance": 5,
+        "tier1_total": 92.0,
+        "tier2_timeliness": 5,
+        "tier2_influence": 4,
+        "tier2_scarcity": 3,
+        "tier2_total": 79.0,
+        "composite": 84.2
+      }
+    },
+    {
+      "title": "场景应用：政务巡检平台飞行架次增长",
+      "source_name": "示例来源",
+      "source_url": "https://example.com/city-inspection",
+      "published_at": "2026-06-30",
+      "summary": "政务巡检平台保持活跃。",
+      "paragraphs": [
+        "某地政务巡检平台累计飞行架次继续增长，城市治理、应急巡查和设施巡检仍是低空经济最容易形成常态需求的场景。相比一次性展示项目，连续飞行数据更能说明场景是否具备稳定需求和平台化复制条件。"
+      ],
+      "scores": {
+        "tier1_source_authority": 3,
+        "tier1_info_density": 3,
+        "tier1_domain_relevance": 4,
+        "tier1_total": 65.0,
+        "tier2_timeliness": 4,
+        "tier2_influence": 3,
+        "tier2_scarcity": 3,
+        "tier2_total": 66.0,
+        "composite": 65.6
+      }
+    }
+  ],
+  "tenders": [
+    {
+      "project_name": "鄞州区低空配套环境提升工程",
+      "purchaser": "宁波市鄞州区公交场站建设投资有限公司",
+      "region": "浙江省",
+      "city": "宁波市",
+      "budget": "3300万元",
+      "node": "投标期内",
+      "url": "https://example.com/tender-ningbo"
+    },
+    {
+      "project_name": "低空无人机遥感网建设项目",
+      "purchaser": "万载投资发展集团有限公司",
+      "region": "江西省",
+      "city": "宜春市",
+      "budget": "1463.26万元",
+      "node": "投标期内",
+      "url": "https://example.com/tender-jiangxi"
+    },
+    {
+      "project_name": "低空经济基础设施设备采购项目",
+      "purchaser": "广东南方电信规划咨询设计院有限公司",
+      "region": "广东省",
+      "city": "广州市",
+      "budget": "846.53万元",
+      "node": "文件获取期内",
+      "url": "https://example.com/tender-guangdong"
+    },
+    {
+      "project_name": "杭州低空飞行服务平台采购项目",
+      "purchaser": "杭州市相关单位",
+      "region": "浙江省",
+      "city": "杭州市",
+      "budget": "200.71万元",
+      "node": "投标期内",
+      "url": "https://example.com/tender-hangzhou"
+    }
+  ]
+}

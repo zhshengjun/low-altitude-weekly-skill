@@ -1,20 +1,58 @@
 [
   {
-    "id": "low_altitude_default_chat",
-    "prompt": "给我生成一份最新的低空经济周报",
-    "delivery": "chat",
-    "checks": ["uses_recent_period", "verifies_original_source_links_internally", "verifies_published_at_internally", "returns_direct_content", "includes_weekly_highlights", "shows_source_name_per_item", "shows_source_url_per_item", "shows_published_at_per_item", "shows_ai_summary_per_item", "omits_raw_article_titles", "omits_source_appendix", "fills_catalog_entries", "omits_blank_catalog_items", "copies_body_headings_to_catalog", "uses_complete_corner_heading_lines", "uses_standalone_corner_heading_lines", "does_not_start_items_with_plain_paragraphs", "uses_generated_topic_headings", "avoids_generic_heading_labels", "uses_scope_or_entity_in_headings", "uses_anbound_style_sections", "omits_viewpoint_lines", "omits_broadcast_phrases", "omits_template_transition_phrases", "omits_overall_judgment", "omits_final_analysis_conclusion", "uses_substantial_commentary"]
+    "id": "uploaded_news_and_tenders_html",
+    "prompt": "用我上传的资讯文档和招标 Excel，生成本周低空经济热点周报 HTML",
+    "delivery": "html",
+    "checks": [
+      "ingests_uploaded_news_documents",
+      "ingests_uploaded_tender_spreadsheet",
+      "scores_selected_news_with_two_tier_rubric",
+      "sorts_selected_news_by_category_and_composite_score",
+      "keeps_period_dates_concrete",
+      "verifies_source_name_url_and_published_at",
+      "produces_report_json",
+      "renders_browser_preview_html",
+      "includes_weekly_highlights",
+      "includes_analysis_column",
+      "uses_short_selected_updates",
+      "includes_tender_table",
+      "includes_china_and_zhejiang_heatmaps",
+      "does_not_auto_generate_pdf"
+    ]
   },
   {
-    "id": "unpreset_domain_default_chat",
-    "prompt": "帮我做一份本周固废资源化领域热点分析",
-    "delivery": "chat",
-    "checks": ["semantic_query_expansion", "uses_domain_type_decomposition", "does_not_force_zhejiang_scope", "verifies_original_source_links_internally", "avoids_homepage_sources", "returns_direct_content", "includes_weekly_highlights", "shows_source_name_per_item", "shows_source_url_per_item", "shows_published_at_per_item", "shows_ai_summary_per_item", "omits_raw_article_titles", "omits_source_appendix", "fills_catalog_entries", "omits_blank_catalog_items", "copies_body_headings_to_catalog", "uses_complete_corner_heading_lines", "uses_standalone_corner_heading_lines", "does_not_start_items_with_plain_paragraphs", "uses_generated_topic_headings", "avoids_generic_heading_labels", "uses_scope_or_entity_in_headings", "uses_anbound_style_sections", "omits_viewpoint_lines", "omits_broadcast_phrases", "omits_template_transition_phrases", "omits_overall_judgment", "omits_final_analysis_conclusion", "uses_substantial_commentary"]
+    "id": "web_only_short_selected_html",
+    "prompt": "帮我做一份本周固废资源化领域热点分析，输出 HTML 预览",
+    "delivery": "html",
+    "checks": [
+      "uses_semantic_search_expansion",
+      "does_not_force_zhejiang_scope",
+      "verifies_original_source_links",
+      "avoids_homepage_sources",
+      "produces_report_json",
+      "renders_browser_preview_html",
+      "matches_weekly_hotspot_style",
+      "includes_analysis_column",
+      "selected_items_are_two_or_three_sentences",
+      "omits_source_appendix",
+      "has_no_placeholder_residue",
+      "does_not_auto_generate_pdf"
+    ]
   },
   {
-    "id": "sparse_week_disclosure",
-    "prompt": "给我生成一份本周县域冷链物流政策周报",
-    "delivery": "chat",
-    "checks": ["expands_search_before_declaring_sparse", "does_not_fabricate_items", "explains_sparse_verified_news_when_needed", "keeps_period_dates_concrete", "returns_direct_content", "includes_weekly_highlights", "shows_source_name_per_item", "shows_source_url_per_item", "shows_published_at_per_item", "shows_ai_summary_per_item", "omits_source_appendix", "fills_catalog_entries", "omits_blank_catalog_items", "uses_complete_corner_heading_lines", "uses_standalone_corner_heading_lines", "does_not_start_items_with_plain_paragraphs", "avoids_generic_heading_labels", "uses_scope_or_entity_in_headings", "omits_broadcast_phrases", "omits_template_transition_phrases"]
+    "id": "no_tender_data_omits_tender_sections",
+    "prompt": "根据上传的三篇政策材料生成一份本周县域冷链物流周报，不含招标数据",
+    "delivery": "html",
+    "checks": [
+      "uses_uploaded_documents_as_candidates",
+      "does_not_fabricate_missing_news",
+      "filters_weakly_related_material",
+      "produces_report_json",
+      "renders_browser_preview_html",
+      "omits_tender_table_when_no_tender_data",
+      "omits_heatmaps_when_no_tender_data",
+      "keeps_selected_items_short",
+      "does_not_auto_generate_pdf"
+    ]
   }
 ]

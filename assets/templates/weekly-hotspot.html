@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!-- ==================================================================
-     WEEKLY HOTSPOT ANALYSIS TEMPLATE · Kami design system
+     WEEKLY HOTSPOT ANALYSIS TEMPLATE · research briefing style
      本周热点分析 · 研究简报排版
-     结构：封面 → 本周要点 → 目录 → 分析专栏 → 优选信息
+     结构：封面 → 本周要点 → 目录 → 分析专栏 → 优选信息 → 招标信息 → 热力图
      ================================================================== -->
 <html lang="zh-CN">
 <head>
@@ -11,7 +11,7 @@
 <meta name="author" content="{{作者}}">
 <meta name="description" content="{{摘要}}">
 <meta name="keywords" content="{{关键词}}">
-<meta name="generator" content="Kami">
+<meta name="generator" content="weekly-hotspot-analysis">
 <style>
   /* ====== FONTS ====== */
   @font-face {
@@ -317,6 +317,11 @@
     line-height: 1.55;
     margin: 0;
   }
+  .brief-text p {
+    margin-bottom: 8pt;
+    color: var(--dark-warm);
+    line-height: 1.6;
+  }
 
   /* ====== ARTICLE BLOCK ====== */
   .article {
@@ -354,6 +359,82 @@
     padding: 5pt 8pt;
     border-bottom: 0.3pt solid var(--border-soft);
     vertical-align: top;
+  }
+
+  /* ====== TENDER TABLE ====== */
+  .tender-chapter table {
+    table-layout: fixed;
+    font-size: 8.8pt;
+  }
+  .tender-chapter th {
+    color: var(--ivory);
+    background: var(--brand);
+    border-bottom: none;
+    font-weight: 500;
+  }
+  .tender-chapter td {
+    color: var(--dark-warm);
+    background: rgba(250, 249, 245, 0.72);
+    word-break: break-word;
+  }
+  .tender-chapter tr:nth-child(even) td {
+    background: rgba(228, 236, 245, 0.36);
+  }
+  .tender-note {
+    color: var(--stone);
+    font-size: 9pt;
+    line-height: 1.55;
+    margin-top: 8pt;
+  }
+
+  /* ====== HEATMAP ====== */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10pt;
+    margin-top: 12pt;
+    break-inside: avoid;
+  }
+  .heatmap-card {
+    min-height: 90mm;
+    border: 0.5pt solid var(--border);
+    border-radius: 4pt;
+    background: var(--ivory);
+    padding: 10pt;
+    overflow: hidden;
+  }
+  .heatmap-title {
+    color: var(--near-black);
+    font-size: 12pt;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 8pt;
+  }
+  .heatmap-slot {
+    min-height: 68mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--stone);
+    background: #fff;
+    border: 0.3pt solid var(--border-soft);
+  }
+  .heatmap-slot img,
+  .heatmap-slot svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .echarts-map {
+    width: 100%;
+    min-height: 68mm;
+  }
+  .heatmap-caption {
+    color: var(--stone);
+    font-size: 8.5pt;
+    line-height: 1.45;
+    text-align: center;
+    margin-top: 6pt;
   }
 
   /* ====== CALLOUT ====== */
@@ -425,11 +506,25 @@
     <span class="toc-page">00</span>
   </div>
   <!-- TOC_SELECTED_LOOP_END -->
+
+  <div class="toc-section-label">〖本周招标信息〗</div>
+  <div class="toc-item">
+    <span class="toc-num">1</span>
+    <span class="toc-title">本周招标项目表</span>
+    <span class="toc-page">00</span>
+  </div>
+
+  <div class="toc-section-label">〖地理空间热力图〗</div>
+  <div class="toc-item">
+    <span class="toc-num">1</span>
+    <span class="toc-title">全国省级与浙江地级市招标热力图</span>
+    <span class="toc-page">00</span>
+  </div>
 </section>
 
 <!-- ═══════════════ 分析专栏 ═══════════════ -->
 <section class="chapter">
-  <div class="chapter-num">{{章节编号}} · 分析专栏</div>
+  <div class="chapter-num">01 · 分析专栏</div>
   <h1>分析专栏</h1>
 
   <!-- ANALYSIS_ARTICLE_LOOP_START -->
@@ -444,7 +539,7 @@
 
     <div class="summary-callout">
       <div class="sc-label">摘要</div>
-      <p>{{AI 摘要 · 2-4 句话概括事实变化、重要性及影响}}</p>
+      <p>{{摘要 · 2-4 句话概括事实变化、重要性及影响}}</p>
     </div>
 
     <!-- 正文段落 · 3-5 段 · 单篇 ≥500 字 -->
@@ -457,7 +552,7 @@
 
 <!-- ═══════════════ 优选信息 ═══════════════ -->
 <section class="chapter">
-  <div class="chapter-num">{{章节编号}} · 优选信息</div>
+  <div class="chapter-num">02 · 优选信息</div>
   <h1>优选信息</h1>
 
   <!-- SELECTED_ITEM_LOOP_START -->
@@ -470,16 +565,66 @@
       <div><span class="sm-label">来源链接：</span><a href="{{来源链接}}">{{来源链接}}</a></div>
     </div>
 
-    <div class="summary-callout">
-      <div class="sc-label">摘要</div>
-      <p>{{AI 摘要 · 2-4 句话概括事实变化、重要性及影响}}</p>
+    <div class="brief-text">
+      <!-- 短讯正文 · 2-3 句话 -->
+      <p>{{正文段落 1}}</p>
     </div>
-
-    <!-- 正文段落 · 2-4 段 · 单篇 ≥250 字 -->
-    <p>{{正文段落 1}}</p>
-    <p>{{正文段落 2}}</p>
   </div>
   <!-- SELECTED_ITEM_LOOP_END -->
+</section>
+
+<!-- ═══════════════ 本周招标信息 ═══════════════ -->
+<section class="chapter tender-chapter">
+  <div class="chapter-num">03 · 本周招标信息</div>
+  <h1>本周招标信息</h1>
+  <p class="lead">{{招标栏目导语}}</p>
+
+  <table class="tender-table">
+    <thead>
+      <tr>
+        <th style="width:8%;">序号</th>
+        <th style="width:30%;">项目名称</th>
+        <th style="width:20%;">采购主体</th>
+        <th style="width:10%;">地区</th>
+        <th style="width:12%;">预算金额</th>
+        <th style="width:12%;">本周节点</th>
+        <th style="width:8%;">链接</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- TENDER_ROW_LOOP_START -->
+      <tr>
+        <td>{{序号}}</td>
+        <td>{{项目名称}}</td>
+        <td>{{采购主体}}</td>
+        <td>{{地区}}</td>
+        <td>{{预算金额}}</td>
+        <td>{{本周节点}}</td>
+        <td><a href="{{招标链接}}">原文</a></td>
+      </tr>
+      <!-- TENDER_ROW_LOOP_END -->
+    </tbody>
+  </table>
+  <p class="tender-note">{{招标收录口径}}</p>
+</section>
+
+<!-- ═══════════════ 地理空间热力图 ═══════════════ -->
+<section class="chapter heatmap-chapter">
+  <div class="chapter-num">04 · 地理空间热力图</div>
+  <h1>地理空间热力图</h1>
+
+  <div class="heatmap-grid">
+    <div class="heatmap-card">
+      <div class="heatmap-title">① 全国省级招标热力图</div>
+      <div class="heatmap-slot">{{全国招标热力图}}</div>
+      <p class="heatmap-caption">{{全国热力图摘要}}</p>
+    </div>
+    <div class="heatmap-card">
+      <div class="heatmap-title">② 浙江省地级市招标热力图</div>
+      <div class="heatmap-slot">{{浙江招标热力图}}</div>
+      <p class="heatmap-caption">{{浙江热力图摘要}}</p>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════════════ COLOPHON ═══════════════ -->

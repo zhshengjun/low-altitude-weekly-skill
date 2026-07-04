@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
-"""Build script for weekly hotspot analysis HTML → PDF conversion.
+"""Validate weekly hotspot analysis HTML.
 
 Usage:
-  python3 scripts/build.py path/to/report.html            # Build PDF
-  python3 scripts/build.py --check-placeholders report.html # Check for leftover {{...}}
-  python3 scripts/build.py --verify report.html             # Build + page count + font check
-  python3 scripts/build.py path/to/report.html --output out.pdf
+  python3 scripts/build.py report.html
+  python3 scripts/build.py report.html --report-json report.json
+  python3 scripts/build.py --check-placeholders report.html
 
-Dependencies:
-  - WeasyPrint >= 60 (pip install weasyprint)
-  - On Windows: additionally pip install fonttools
-
-  Without WeasyPrint, only placeholder checks run; PDF build is skipped.
+This script only validates HTML. Export PDF from the browser preview.
 """
 
 import argparse
-import os
+import json
 import re
 import sys
 from pathlib import Path
+
+
+SCORE_FIELDS = (
+    "tier1_source_authority",
+    "tier1_info_density",
+    "tier1_domain_relevance",
+    "tier1_total",
+    "tier2_timeliness",
+    "tier2_influence",
+    "tier2_scarcity",
+    "tier2_total",
+    "composite",
+)
 
 
 def check_placeholders(html_path: str) -> bool:
@@ -46,8 +54,9 @@ def check_structure(html_path: str) -> bool:
         ('cover section', '.cover'),
         ('highlights section', '.highlights'),
         ('TOC section', '.toc'),
+        ('analysis chapter', '分析专栏'),
+        ('selected-info chapter', '优选信息'),
         ('source metadata', 'source-meta'),
-        ('summary callout', 'summary-callout'),
         ('colophon', 'colophon'),
     ]
     all_ok = True
@@ -60,162 +69,94 @@ def check_structure(html_path: str) -> bool:
     return all_ok
 
 
-def find_chrome() -> str | None:
-    """Locate Chrome/Chromium/Edge executable for headless PDF."""
-    import platform
-    candidates = []
-    system = platform.system()
-
-    if system == "Windows":
-        candidates = [
-            os.path.expandvars(r"%ProgramFiles%\Google\Chrome\Application\chrome.exe"),
-            os.path.expandvars(r"%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"),
-            os.path.expandvars(r"%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"),
-            os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"),
-            os.path.expandvars(r"%LocalAppData%\Chromium\Application\chrome.exe"),
-        ]
-    elif system == "Darwin":
-        candidates = [
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-        ]
-    else:  # Linux
-        candidates = [
-            "google-chrome", "google-chrome-stable", "chromium", "chromium-browser",
-            "microsoft-edge", "microsoft-edge-stable",
-        ]
-
-    for path in candidates:
-        if os.path.exists(path) or (system != "Windows" and path):
-            return path
+def score_value(scores: dict, key: str) -> float | None:
+    value = scores.get(key)
+    if isinstance(value, (int, float)):
+        return float(value)
     return None
 
 
-def build_pdf_weasyprint(html_path: str, output_path: str) -> bool:
-    """PDF via WeasyPrint (best quality, CJK font subsetting)."""
-    try:
-        from weasyprint import HTML
-        HTML(filename=html_path).write_pdf(output_path)
-        return True
-    except ImportError:
-        return False
-    except Exception as e:
-        print(f"[FAIL] WeasyPrint error: {e}")
-        return False
+def close_enough(actual: float | None, expected: float, tolerance: float = 0.2) -> bool:
+    return actual is not None and abs(actual - expected) <= tolerance
 
 
-def build_pdf_chrome(html_path: str, output_path: str) -> bool:
-    """PDF via Chrome headless (good fallback, full CSS support)."""
-    chrome = find_chrome()
-    if not chrome:
-        print("[SKIP] Chrome/Edge not found.")
-        return False
+def check_report_json(report_path: str, html_path: str) -> bool:
+    """Verify selected news scoring fields and formula."""
+    data = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    html_text = Path(html_path).read_text(encoding="utf-8")
+    selected = data.get("selected") or data.get("highlights_news") or []
+    if not selected:
+        print("[WARN] No selected news found in report.json; scoring check skipped.")
+        all_ok = True
+    else:
+        all_ok = True
+        for index, item in enumerate(selected, 1):
+            scores = item.get("scores")
+            title = item.get("title") or f"selected #{index}"
+            if not isinstance(scores, dict):
+                print(f"[FAIL] Missing scores for selected item {index}: {title}")
+                all_ok = False
+                continue
 
-    import subprocess
-    import urllib.parse
+            missing = [field for field in SCORE_FIELDS if field not in scores]
+            if missing:
+                print(f"[FAIL] Incomplete scores for selected item {index}: {title}; missing {', '.join(missing)}")
+                all_ok = False
+                continue
 
-    abs_path = os.path.abspath(html_path)
-    # file:// URL with proper encoding for cross-platform compatibility
-    file_url = "file:///" + abs_path.replace("\\", "/").lstrip("/")
+            source = score_value(scores, "tier1_source_authority")
+            density = score_value(scores, "tier1_info_density")
+            relevance = score_value(scores, "tier1_domain_relevance")
+            timeliness = score_value(scores, "tier2_timeliness")
+            influence = score_value(scores, "tier2_influence")
+            scarcity = score_value(scores, "tier2_scarcity")
+            indicator_values = [source, density, relevance, timeliness, influence, scarcity]
+            if any(value is None or value < 1 or value > 5 for value in indicator_values):
+                print(f"[FAIL] Score indicators must be numbers from 1 to 5 for selected item {index}: {title}")
+                all_ok = False
+                continue
 
-    cmd = [
-        chrome,
-        "--headless",
-        "--disable-gpu",
-        f"--print-to-pdf={output_path}",
-        "--print-to-pdf-no-header",
-        "--no-pdf-header-footer",
-        file_url,
-    ]
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
-            print(f"[OK] Chrome PDF built: {output_path}")
-            return True
+            tier1 = (source * 0.35 + density * 0.40 + relevance * 0.25) * 20
+            tier2 = (timeliness * 0.30 + influence * 0.35 + scarcity * 0.35) * 20
+            composite = tier1 * 0.40 + tier2 * 0.60
+            if not close_enough(score_value(scores, "tier1_total"), tier1):
+                print(f"[FAIL] tier1_total formula mismatch for selected item {index}: {title}")
+                all_ok = False
+            if not close_enough(score_value(scores, "tier2_total"), tier2):
+                print(f"[FAIL] tier2_total formula mismatch for selected item {index}: {title}")
+                all_ok = False
+            if not close_enough(score_value(scores, "composite"), composite):
+                print(f"[FAIL] composite formula mismatch for selected item {index}: {title}")
+                all_ok = False
+
+    tenders = data.get("tenders") or []
+    tender_markers = ("tender-table", "本周招标信息", "地理空间热力图", "china-heatmap", "zhejiang-heatmap")
+    if tenders:
+        missing = [marker for marker in tender_markers if marker not in html_text]
+        if missing:
+            print(f"[FAIL] Tender data exists but HTML is missing: {', '.join(missing)}")
+            all_ok = False
         else:
-            print(f"[FAIL] Chrome produced empty/invalid PDF")
-            if result.stderr:
-                print(f"       stderr: {result.stderr[:200]}")
-            return False
-    except subprocess.TimeoutExpired:
-        print("[FAIL] Chrome PDF generation timed out (30s)")
-        return False
-    except FileNotFoundError:
-        print(f"[SKIP] Chrome not executable: {chrome}")
-        return False
-    except Exception as e:
-        print(f"[FAIL] Chrome error: {e}")
-        return False
+            print("[PASS] Tender table and China/Zhejiang heatmaps are present.")
+    elif any(marker in html_text for marker in tender_markers):
+        print("[FAIL] No tender data exists but tender/heatmap sections are present.")
+        all_ok = False
 
-
-def build_pdf(html_path: str, output_path: str | None = None) -> bool:
-    """Convert HTML to PDF — tries WeasyPrint first, then Chrome, then bails."""
-    if output_path is None:
-        output_path = str(Path(html_path).with_suffix(".pdf"))
-    output_path = str(output_path)
-
-    # 1) WeasyPrint (best quality)
-    if build_pdf_weasyprint(html_path, output_path):
-        size_kb = os.path.getsize(output_path) / 1024
-        print(f"       Size: {size_kb:.0f} KB  [WeasyPrint]")
-        return True
-
-    # 2) Chrome headless (good fallback)
-    print("[INFO] WeasyPrint unavailable; trying Chrome headless...")
-    if build_pdf_chrome(html_path, output_path):
-        size_kb = os.path.getsize(output_path) / 1024
-        print(f"       Size: {size_kb:.0f} KB  [Chrome headless]")
-        return True
-
-    # 3) Nothing works
-    print("\n[SKIP] PDF not generated — neither WeasyPrint nor Chrome available.")
-    print("       Install: pip install weasyprint")
-    print("       Or open HTML in browser → Print → Save as PDF (Margins: None, Background graphics: On)")
-    return False
-
-
-def verify_pdf(pdf_path: str) -> bool:
-    """Check page count and font embedding."""
-    try:
-        from weasyprint import HTML
-    except ImportError:
-        return True  # skip verification without WeasyPrint
-
-    try:
-        import subprocess
-        # Use pdfinfo (poppler-utils) if available
-        result = subprocess.run(
-            ["pdfinfo", pdf_path], capture_output=True, text=True
-        )
-        if result.returncode == 0:
-            for line in result.stdout.splitlines():
-                if line.startswith("Pages:"):
-                    pages = int(line.split(":")[1].strip())
-                    print(f"[INFO] PDF pages: {pages}")
-                    if pages < 3:
-                        print("[WARN] PDF has fewer than 3 pages — report may be incomplete.")
-                    break
-    except FileNotFoundError:
-        print("[INFO] pdfinfo not available; skipping page count check.")
-    except Exception:
-        pass
-
-    print("[PASS] PDF verification complete.")
-    return True
+    if all_ok:
+        print("[PASS] Selected news scoring fields and formulas are valid.")
+    return all_ok
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Build weekly hotspot analysis PDF")
+    parser = argparse.ArgumentParser(description="Validate weekly hotspot analysis HTML")
     parser.add_argument("html", help="Path to filled HTML file")
-    parser.add_argument("--output", "-o", help="Output PDF path (default: same name .pdf)")
+    parser.add_argument("--report-json", help="Optional report.json path for selected-news scoring validation")
     parser.add_argument("--check-placeholders", action="store_true", help="Only check for residual {{...}}")
-    parser.add_argument("--verify", action="store_true", help="Full verification: placeholders + structure + build + check")
-    parser.add_argument("--check-density", action="store_true", help="Warn on pages with >25% trailing whitespace (WeasyPrint required)")
 
     args = parser.parse_args()
 
     html_path = args.html
-    if not os.path.exists(html_path):
+    if not Path(html_path).exists():
         print(f"[FAIL] File not found: {html_path}")
         sys.exit(1)
 
@@ -229,24 +170,15 @@ def main():
     if args.check_placeholders:
         sys.exit(0 if clean else 1)
 
-    if args.verify:
-        structure_ok = check_structure(html_path)
-        if not structure_ok:
-            print("\n[WARN] Structural issues found — PDF may be incomplete.")
+    structure_ok = check_structure(html_path)
+    if not structure_ok:
+        sys.exit(1)
 
-    # Build PDF
-    pdf_ok = build_pdf(html_path, args.output)
+    if args.report_json and not check_report_json(args.report_json, html_path):
+        sys.exit(1)
 
-    if args.verify and pdf_ok:
-        output_path = args.output or Path(html_path).with_suffix(".pdf")
-        verify_pdf(str(output_path))
-
-    if not pdf_ok and not args.verify:
-        print("\n[INFO] PDF generation skipped (WeasyPrint unavailable).")
-        print("       HTML is valid and browser-ready.")
-        sys.exit(0)
-
-    sys.exit(0 if pdf_ok else 1)
+    print("\n[PASS] HTML is browser-ready. Export PDF from the browser if needed.")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
