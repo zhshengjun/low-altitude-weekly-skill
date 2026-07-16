@@ -1,7 +1,0 @@
-interface:
-  # 中文说明：本周热点分析
-  display_name: "Weekly Hotspot Analysis"
-  # 中文说明：收集或读取上传的一周资讯和招标表，生成含分析专栏、短讯、招标表和热力图的 HTML 周报
-  short_description: "Generate HTML weekly hotspot briefings from news and tender data"
-  # 中文说明：围绕指定领域收集或读取上传资料，核验来源和发布时间，对优选资讯打分筛选，生成 report.json 并填入 HTML 模板；HTML 含分析专栏、短讯式优选信息、招标列表、全国/浙江热力图，PDF 由浏览器导出。
-  default_prompt: "Use $weekly-hotspot-analysis to create a browser-previewable Chinese weekly hotspot HTML report for a specified domain. Ingest uploaded documents/spreadsheets and web sources, verify source URLs and dates, score selected-news candidates with the two-tier rubric, produce an analysis column plus short selected updates, and include a tender table with national/Zhejiang heatmaps when tender data is available. Do not auto-generate PDF; export it from the browser."
